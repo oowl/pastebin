@@ -3,7 +3,9 @@
 extern crate rand;
 mod paste_id;
 use self::paste_id::PasteId;
+use self::paste_id::UserAgent;
 extern crate rocket;
+extern crate rocket_contrib;
 
 use std::io;
 use std::path::Path;
@@ -11,9 +13,22 @@ use rocket::Data;
 use rocket::http::RawStr;
 use std::fs::File;
 use rocket::request::FromParam;
+use rocket_contrib::Template;
+use rocket::response::Redirect;
+#[macro_use] 
+extern crate serde_derive;
 
+#[derive(Serialize)]
+struct TemplateContext {
+    name: String,
+}
+
+enum Index {
+    string(String),
+    tem(Template),
+}
 #[get("/")]
-fn index() -> &'static str {
+fn index(ua: UserAgent) -> &'static str {
         "
     USAGE
 
@@ -26,6 +41,12 @@ fn index() -> &'static str {
 
           retrieves the content for the paste with id `<id>`
     \n"
+}
+
+#[get("/",rank=2)]
+fn index_tem() -> Template {
+    let context: TemplateContext = TemplateContext{ name: "hello world".to_string() };
+    Template::render("index", &context)
 }
 
 #[post("/",data="<paste>")]
@@ -44,5 +65,5 @@ fn retrieve(id: PasteId) -> Option<File> {
 }
 
 fn main() {
-    rocket::ignite().mount("/", routes![index,upload,retrieve]).launch();
+    rocket::ignite().mount("/", routes![index,upload,retrieve,index_tem]).attach(Template::fairing()).launch();
 }

@@ -1,12 +1,36 @@
 use std::fmt;
 use std::borrow::Cow;
 use rand::{self,Rng};
-use rocket::request::FromParam;
+use rocket::request::{self,FromParam,FromRequest,Request};
 use rocket::http::RawStr;
+use rocket::outcome::Outcome::*;
+#[derive(Debug)]
+pub struct UserAgent(String);
+
+impl fmt::Display for UserAgent {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
+impl<'a, 'r> FromRequest<'a, 'r> for UserAgent {
+    type Error = ();
+    fn from_request(request: &'a Request<'r>) -> request::Outcome<Self, ()> {
+        let us = request.headers().get_one("User-Agent").unwrap();
+        let a = us.contains("Mozilla");
+        if a {
+            Forward(())
+        } else {
+            Success(UserAgent("sss".to_string()))
+        }
+    }
+}
+
+
 
 const BASE62: &'static [u8] = b"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 pub struct PasteId<'a>(Cow<'a,str>);
-impl <'a> PasteId<'a> {
+impl<'a> PasteId<'a> {
     pub fn new(size: usize) -> PasteId<'static> {
         let mut id = String::with_capacity(size);
         let mut rng = rand::thread_rng();
@@ -17,7 +41,7 @@ impl <'a> PasteId<'a> {
     }
 }
 
-impl <'a> fmt::Display for PasteId<'a> {
+impl<'a> fmt::Display for PasteId<'a> {
     fn fmt(&self,f: &mut fmt::Formatter) -> fmt::Result {
         write!(f,"{}",self.0)
     }
@@ -38,6 +62,5 @@ impl<'a> FromParam<'a> for PasteId<'a> {
             true => Ok(PasteId(Cow::Borrowed(param))),
             false => Err(param)
         }
-
     }
 }
