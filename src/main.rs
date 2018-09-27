@@ -12,6 +12,7 @@ use std::path::Path;
 use rocket::Data;
 use rocket::http::RawStr;
 use std::fs::File;
+use std::io::prelude::*;
 use rocket::request::FromParam;
 use rocket_contrib::Template;
 use rocket::response::Redirect;
@@ -59,11 +60,21 @@ fn upload(paste: Data) -> io::Result<String> {
 }
 
 #[get("/<id>")]
-fn retrieve(id: PasteId) -> Option<File> {
+fn retrieve(id: PasteId,ua: UserAgent) -> Option<File> {
     let filename = format!("upload/{id}",id = id);
     File::open(&filename).ok()
 }
 
+#[get("/<id>",rank=2)]
+fn retrieve_tem(id: PasteId) -> Template {
+    let filename = format!("upload/{id}",id = id);
+    let mut s = String::new();
+    let mut f = File::open(&filename).expect("file not found");
+    f.read_to_string(&mut s).unwrap();
+    let context: TemplateContext = TemplateContext{ name: s };
+    Template::render("id", &context)
+}
+
 fn main() {
-    rocket::ignite().mount("/", routes![index,upload,retrieve,index_tem]).attach(Template::fairing()).launch();
+    rocket::ignite().mount("/", routes![index,upload,retrieve,retrieve_tem,index_tem]).attach(Template::fairing()).launch();
 }
