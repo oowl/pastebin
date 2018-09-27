@@ -24,10 +24,7 @@ struct TemplateContext {
     name: String,
 }
 
-enum Index {
-    string(String),
-    tem(Template),
-}
+
 #[get("/")]
 fn index(ua: UserAgent) -> &'static str {
         "
@@ -51,12 +48,21 @@ fn index_tem() -> Template {
 }
 
 #[post("/",data="<paste>")]
-fn upload(paste: Data) -> io::Result<String> {
+fn upload(paste: Data,ua: UserAgent) -> io::Result<String> {
     let id = PasteId::new(3);
     let filename = format!("upload/{id}",id = id);
     let url = format!("{host}/{id}\n",host = "http://localhost:8000", id = id);
     paste.stream_to_file(Path::new(&filename))?;
     Ok(url)
+}
+
+#[post("/",data="<paste>",rank = 2)]
+fn upload_red(paste: Data) -> io::Result<Redirect> {
+    let id = PasteId::new(3);
+    let filename = format!("upload/{id}",id = id);
+    let url = format!("{host}/{id}\n",host = "http://localhost:8000", id = id);
+    paste.stream_to_file(Path::new(&filename))?;
+    Ok(Redirect::to(&url))
 }
 
 #[get("/<id>")]
@@ -66,13 +72,18 @@ fn retrieve(id: PasteId,ua: UserAgent) -> Option<File> {
 }
 
 #[get("/<id>",rank=2)]
-fn retrieve_tem(id: PasteId) -> Template {
+fn retrieve_tem(id: PasteId) -> Option<Template> {
     let filename = format!("upload/{id}",id = id);
     let mut s = String::new();
-    let mut f = File::open(&filename).expect("file not found");
-    f.read_to_string(&mut s).unwrap();
-    let context: TemplateContext = TemplateContext{ name: s };
-    Template::render("id", &context)
+    let f = File::open(&filename);
+    match f {
+        Ok(mut f) => {
+            f.read_to_string(&mut s).ok();
+            let context: TemplateContext = TemplateContext{ name: s };
+            Some(Template::render("id", &context))
+        }
+        Err(_) => None
+    }
 }
 
 fn main() {
