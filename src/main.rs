@@ -53,7 +53,7 @@ fn index_tem() -> Template {
 fn upload(paste: Data,ua: UserAgent) -> io::Result<String> {
     let id = PasteId::new(3);
     let filename = format!("upload/{id}",id = id);
-    let url = format!("{host}/{id}\n",host = "http://localhost:8000", id = id);
+    let url = format!("/{id}\n", id = id);
     paste.stream_to_file(Path::new(&filename))?;
     Ok(url)
 }
@@ -65,7 +65,10 @@ struct Paste {
 fn upload_red(paste: Form<Paste>) -> io::Result<Redirect> {
     let id = PasteId::new(3);
     let filename = format!("upload/{id}",id = id);
-    let url = format!("{host}/{id}\n",host = "http://localhost:8000", id = id);
+    let url = format!("/{id}\n", id = id);
+    if paste.get().content == ""{
+        return Ok(Redirect::to("/"))
+    }
     let mut file = File::create(filename)?;
     file.write_all(paste.get().content.as_bytes())?;
     Ok(Redirect::to(&url))
