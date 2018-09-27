@@ -1,5 +1,6 @@
 #![feature(plugin)]
 #![plugin(rocket_codegen)]
+#![feature(custom_derive)]
 extern crate rand;
 mod paste_id;
 use self::paste_id::PasteId;
@@ -16,6 +17,7 @@ use std::io::prelude::*;
 use rocket::request::FromParam;
 use rocket_contrib::Template;
 use rocket::response::Redirect;
+use rocket::request::Form;
 #[macro_use] 
 extern crate serde_derive;
 
@@ -55,13 +57,17 @@ fn upload(paste: Data,ua: UserAgent) -> io::Result<String> {
     paste.stream_to_file(Path::new(&filename))?;
     Ok(url)
 }
-
+#[derive(FromForm)]
+struct Paste {
+    content: String,
+}
 #[post("/",data="<paste>",rank = 2)]
-fn upload_red(paste: Data) -> io::Result<Redirect> {
+fn upload_red(paste: Form<Paste>) -> io::Result<Redirect> {
     let id = PasteId::new(3);
     let filename = format!("upload/{id}",id = id);
     let url = format!("{host}/{id}\n",host = "http://localhost:8000", id = id);
-    paste.stream_to_file(Path::new(&filename))?;
+    let mut file = File::create(filename)?;
+    file.write_all(paste.get().content.as_bytes())?;
     Ok(Redirect::to(&url))
 }
 
@@ -87,5 +93,5 @@ fn retrieve_tem(id: PasteId) -> Option<Template> {
 }
 
 fn main() {
-    rocket::ignite().mount("/", routes![index,upload,retrieve,retrieve_tem,index_tem]).attach(Template::fairing()).launch();
+    rocket::ignite().mount("/", routes![index,upload,retrieve,retrieve_tem,index_tem,upload_red]).attach(Template::fairing()).launch();
 }

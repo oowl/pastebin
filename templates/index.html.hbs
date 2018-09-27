@@ -3,9 +3,19 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Handlebars Demo</title>
+    <title>Pastebin</title>
   </head>
   <body>
-    <h1>{{name}}</h1>>
+<form action="/" method="POST" id="pasteform" name="pasteform">
+  <table>
+    {{!-- <tbody><tr>
+      <td colspan="2">This site is intended for use as a short-term exchange of pasted information between parties.  All submitted data is considered public information.  Submitted data is not guaranteed to be permanent, and may be removed at any time.  Please do not set up programs to send data to this site in an automated fashion; it is intended to be used directly by humans.</td>
+    </tr> --}}
+    <tr><td><textarea id="id_content" rows="20" cols="80" name="content"></textarea></td></tr>
+    <tr> 
+      <td> <input value="Paste!" type="submit"> </td>
+    </tr>
+  </tbody></table>
+</form>
   </body>
 </html>
