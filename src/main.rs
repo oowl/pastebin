@@ -1,4 +1,4 @@
-#![feature(plugin)]
+#![feature(plugin,decl_macro)]
 #![plugin(rocket_codegen)]
 #![feature(custom_derive)]
 extern crate rand;
@@ -9,7 +9,7 @@ extern crate rocket;
 extern crate rocket_contrib;
 
 use std::io;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use rocket::Data;
 use rocket::http::RawStr;
 use std::fs::File;
@@ -17,6 +17,7 @@ use std::io::prelude::*;
 use rocket::request::FromParam;
 use rocket_contrib::Template;
 use rocket::response::Redirect;
+use rocket::response::NamedFile;
 use rocket::request::Form;
 #[macro_use] 
 extern crate serde_derive;
@@ -42,6 +43,7 @@ fn index(ua: UserAgent) -> &'static str {
           retrieves the content for the paste with id `<id>`
     \n"
 }
+
 
 #[get("/",rank=2)]
 fn index_tem() -> Template {
@@ -94,7 +96,13 @@ fn retrieve_tem(id: PasteId) -> Option<Template> {
         Err(_) => None
     }
 }
+#[get("/<file..>",rank=3)]
+fn files(file: PathBuf) -> Option<NamedFile> {
+    NamedFile::open(Path::new("templates/").join(file)).ok()
+}
+
 
 fn main() {
-    rocket::ignite().mount("/", routes![index,upload,retrieve,retrieve_tem,index_tem,upload_red]).attach(Template::fairing()).launch();
+    rocket::ignite()
+        .mount("/", routes![index,upload,retrieve,retrieve_tem,index_tem,upload_red,files]).attach(Template::fairing()).launch();
 }
