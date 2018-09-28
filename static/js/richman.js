@@ -12,6 +12,7 @@ jQuery(document).ready(function($) {
       "left": x,
       "position": "absolute",
       "font-weight": "bold",
+      "font-size":"17px",
       "color": a[a_idx]
     });
     $("body").append($i);
