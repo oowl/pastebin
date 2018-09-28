@@ -4,18 +4,31 @@
   <head>
     <meta charset="utf-8" />
     <title>Pastebin</title>
+    <link href="/favicon.ico" rel="shortcut icon" />
+    <link rel="stylesheet" href="/styles/bulma.min.css"> 
   </head>
   <body>
-<form action="/" method="POST" id="pasteform" name="pasteform">
-  <table>
-    {{!-- <tbody><tr>
-      <td colspan="2">This site is intended for use as a short-term exchange of pasted information between parties.  All submitted data is considered public information.  Submitted data is not guaranteed to be permanent, and may be removed at any time.  Please do not set up programs to send data to this site in an automated fashion; it is intended to be used directly by humans.</td>
-    </tr> --}}
-    <tr><td><textarea id="id_content" rows="20" cols="80" name="content"></textarea></td></tr>
-    <tr> 
-      <td> <input value="Paste!" type="submit"> </td>
-    </tr>
-  </tbody></table>
-</form>
+    <form action="/" method="POST" id="pasteform" name="pasteform">
+      <div class="field">
+        <div class="control">
+          <textarea class="textarea is-primary" id="id_content" type="text" name="content" placeholder="input code here!"></textarea>
+        </div>
+      </div>
+      <div class="field is-grouped">
+        <p class="control">
+          <input class="button is-primary" type="submit" value="Paste!">
+            
+          
+        </p>
+      </div>
+      {{!-- <table>
+        <tbody>
+        <tr><td><textarea id="id_content" rows="20" cols="80" name="content"></textarea></td></tr>
+        <tr> 
+          <td> <input value="Paste!" type="submit"> </td>
+        </tr>
+      </tbody></table> --}}
+    </form>
+  <script src="/js/richman.js"></script>
   </body>
 </html>
