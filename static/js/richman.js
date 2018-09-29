@@ -50,6 +50,13 @@ jQuery(document).ready(function ($) {
         if (rest[0]) {
             $info.text(rest[1]);
             $info.css('color', "#55a96f");
+                             let X=$('.flyowl').offset().left;
+            $(".flyowl").animate({'left':screen.width-X},'slow',function(e){
+                $(".flyowl").css('left',-X).animate({'left':0},'fast')
+            })
+//             setTimeout(function(){
+//                $(".flyowl").css('left','0px') 
+//             },600)
         } else {
             $info.text('Copy error!');
             $info.css('color', yesno[1]);
