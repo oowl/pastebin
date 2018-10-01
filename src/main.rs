@@ -98,7 +98,7 @@ fn retrieve_tem(id: PasteId) -> Option<Template> {
 }
 #[get("/<file..>",rank=3)]
 fn files(file: PathBuf) -> Option<NamedFile> {
-    NamedFile::open(Path::new("templates/").join(file)).ok()
+    NamedFile::open(Path::new("static/").join(file)).ok()
 }
 
 
